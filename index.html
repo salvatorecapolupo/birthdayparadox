@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Birthday Paradox Battle</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: 'Courier New', monospace;
+    }
+
+    .game-area {
+      max-width: 700px;
+      margin: auto;
+      border: 3px solid #00ffcc;
+      padding: 20px;
+      background: #111;
+      position: relative;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    .person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 6px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      color: #ffcc00;
+      margin-bottom: 2px;
+    }
+
+    .sprite {
+    width: 32px;
+    height: 32px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    }
+
+    .match-banner {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ff0066;
+      padding: 20px 40px;
+      border: 4px double #fff;
+      font-size: 1.5rem;
+      color: #fff;
+      animation: flash 0.5s infinite alternate;
+      z-index: 10;
+    }
+
+    @keyframes flash {
+      from { opacity: 1; }
+      to { opacity: 0.3; }
+    }
+
+    .bar-container {
+      height: 20px;
+      background: #444;
+      border: 1px solid #ccc;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #00ffcc;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center mt-5">
+    <h1 class="text-warning">🎂 Birthday Paradox Battle 🎂</h1>
+
+    <div class="game-area mt-4" id="gameArea">
+      <div class="controls d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <button class="btn btn-success me-2" onclick="addPerson()">➕ Add Person</button>
+          <button class="btn btn-danger" onclick="resetGame()">🔄 Reset Game</button>
+        </div>
+        <p class="mt-2 mb-0" id="status">People in room: 0</p>
+      </div>
+
+      <div id="probabilityText" class="text-info text-start mt-2"></div>
+      <div class="bar-container">
+        <div id="probabilityBar" class="bar-fill"></div>
+      </div>
+
+      <div id="people" class="d-flex flex-wrap justify-content-center mt-3"></div>
+    </div>
+  </div>
+
+<div class="container mt-5 text-white" style="max-width: 800px; font-family: 'Courier New', monospace;">
+  <h2 class="text-warning">🧠 Il Paradosso del Compleanno</h2>
+  <p>
+    Il <strong>paradosso del compleanno</strong> è un risultato controintuitivo della probabilità:
+    in un gruppo di appena <strong>23 persone</strong>, c'è oltre il <strong>50%</strong> di probabilità che almeno due
+    persone condividano lo stesso giorno di compleanno.
+  </p>
+
+  <h4 class="text-info">🔍 Perché è un "paradosso"?</h4>
+  <p>
+    Sembra sorprendente, perché 23 è molto meno di 365 giorni. Ma la probabilità considera <em>tutte le possibili coppie</em>
+    di persone, e il numero di combinazioni cresce rapidamente.
+  </p>
+
+  <h4 class="text-info">📐 Formula generale</h4>
+  <p>
+    Supponiamo che ci siano <span style="color:#00ffcc;"><strong>n</strong></span> persone in una stanza.
+    La probabilità che <strong>nessuno</strong> condivida il compleanno è:
+  </p>
+
+  <div style="background: #222; padding: 10px; border-left: 5px solid #00ffcc; font-size: 1.2rem;">
+    \( P_{\text{nessun match}}(n) = \prod_{k=0}^{n-1} \left(1 - \frac{k}{365}\right) \)
+  </div>
+
+  <p class="mt-3">
+    Di conseguenza, la probabilità che <strong>almeno due</strong> persone condividano il compleanno è:
+  </p>
+
+  <div style="background: #222; padding: 10px; border-left: 5px solid #ff3366; font-size: 1.2rem;">
+    \( P_{\text{almeno un match}}(n) = 1 - \prod_{k=0}^{n-1} \left(1 - \frac{k}{365} \right) \)
+  </div>
+
+  <h4 class="text-info mt-4">📊 Alcuni esempi</h4>
+  <ul>
+    <li>n = 10 → probabilità ≈ 11.7%</li>
+    <li>n = 23 → probabilità ≈ 50.7%</li>
+    <li>n = 50 → probabilità ≈ 97.0%</li>
+    <li>n = 70 → probabilità > 99.9%</li>
+  </ul>
+
+  <h4 class="text-info">🎮 E nel nostro gioco?</h4>
+  <p>
+    Ogni volta che una nuova persona entra nella “stanza virtuale”, si genera un compleanno casuale. Quando due persone
+    coincidono, otteniamo un <strong>"match"</strong> — proprio come predetto dal paradosso!
+  </p>
+</div>
+
+<!-- Include MathJax -->
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+
+  <!-- Audio elements -->
+  <audio id="bip1" src="https://freesound.org/data/previews/66/66717_931655-lq.mp3"></audio>
+  <audio id="bip2" src="https://freesound.org/data/previews/146/146734_2615117-lq.mp3"></audio>
+
+  <script>
+    let birthdays = {};
+    let birthdayMap = {};
+    let count = 0;
+
+    const peopleDiv = document.getElementById('people');
+    const statusText = document.getElementById('status');
+    const probabilityBar = document.getElementById('probabilityBar');
+    const probabilityText = document.getElementById('probabilityText');
+    const gameArea = document.getElementById('gameArea');
+
+    const sounds = [document.getElementById("bip1"), document.getElementById("bip2")];
+
+    function playRandomBip() {
+    const bip = new Audio(sounds[Math.floor(Math.random() * sounds.length)].src);
+    bip.volume = 0.4;
+    bip.play().catch(() => {});
+    }
+
+
+    function randomBirthday() {
+      const month = Math.floor(Math.random() * 12) + 1;
+      const day = Math.floor(Math.random() * 28) + 1;
+      return `${month}/${day}`;
+    }
+
+    function updateProbabilityDisplay(n) {
+      if (n < 2) {
+        probabilityBar.style.width = '0%';
+        probabilityText.innerText = 'Add more people to see probability.';
+        return;
+      }
+
+      let prob = 1;
+      for (let i = 0; i < n; i++) {
+        prob *= (365 - i) / 365;
+      }
+      let result = (1 - prob) * 100;
+
+      probabilityBar.style.width = `${result.toFixed(1)}%`;
+      probabilityText.innerText = `With ${n} people, chance of shared birthday: ${result.toFixed(1)}%`;
+    }
+
+    // Array di URL sprite
+    const spriteUrls = [
+    'https://opengameart.org/sites/default/files/wpierdol.png',
+    'https://opengameart.org/sites/default/files/pan_0.png',
+    'https://opengameart.org/sites/default/files/character_positioned.png',
+    'https://opengameart.org/sites/default/files/First%20Pixel%20Art_2.png',
+    'https://opengameart.org/sites/default/files/nosy_ego_01.png',
+    ];
+
+    function addPerson() {
+    //   const person = document.createElement("div");
+    //   person.classList.add("sprite");
+
+    //   // Assegna uno sprite casuale
+    //   const randomSprite = spriteUrls[Math.floor(Math.random() * spriteUrls.length)];
+    //   person.style.backgroundImage = `url(${randomSprite})`;
+      
+    const randomSprite = spriteUrls[Math.floor(Math.random() * spriteUrls.length)];
+
+      const bday = randomBirthday();
+      count++;
+
+      const container = document.createElement('div');
+      container.className = 'person';
+
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.innerText = bday;
+
+    //   const sprite = document.createElement('div');
+    //   sprite.className = 'sprite';
+    //   sprite.title = `Person ${count} - Birthday: ${bday}`;
+
+    const sprite = document.createElement('div');
+    sprite.className = 'sprite';
+    sprite.title = `Person ${count} - Birthday: ${bday}`;
+    sprite.style.backgroundImage = `url(${randomSprite})`;
+
+    //   document.getElementById("game-container").appendChild(person);
+      container.appendChild(label);
+      container.appendChild(sprite);
+      peopleDiv.appendChild(container);
+
+      if (!birthdayMap[bday]) birthdayMap[bday] = [];
+      birthdayMap[bday].push(sprite);
+
+      playRandomBip();
+      updateProbabilityDisplay(count);
+
+      if (birthdays[bday]) {
+        showMatchBanner(`🎉 Match! ${bday} appeared twice!`);
+        highlightDuplicates(bday);
+      } else {
+        birthdays[bday] = true;
+        statusText.innerText = `People in room: ${count}`;
+      }
+
+    }
+
+    function highlightDuplicates(bday) {
+      const duplicates = birthdayMap[bday] || [];
+      duplicates.forEach(sprite => {
+        sprite.style.border = "2px solid gold";
+        sprite.style.backgroundColor = "#ff3366";
+      });
+    }
+
+    function showMatchBanner(text) {
+      const banner = document.createElement('div');
+      banner.className = 'match-banner';
+      banner.innerText = text;
+      gameArea.appendChild(banner);
+      setTimeout(() => banner.remove(), 3000);
+    }
+
+    function resetGame() {
+      count = 0;
+      birthdays = {};
+      birthdayMap = {};
+      peopleDiv.innerHTML = '';
+      probabilityBar.style.width = '0%';
+      probabilityText.innerText = '';
+      statusText.innerText = 'People in room: 0';
+    }
+  </script>
+</body>
+</html>
