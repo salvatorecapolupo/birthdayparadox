@@ -4,7 +4,9 @@
 
 ## 📋 Descrizione Generale
 
-Il progetto è una **web app interattiva** che illustra il *paradosso del compleanno*, dimostrando come in un gruppo casuale di persone ci sia un'alta probabilità che almeno due condividano la stessa data di nascita.
+Il progetto è una **web app interattiva** che illustra il *paradosso del compleanno*, 
+dimostrando come in un gruppo casuale di persone ci sia una (relativamente) elevata probabilità 
+che almeno due condividano la stessa data di nascita, al contrario di ciò che suggerisce l'intuizione. 
 
 L'interfaccia permette all'utente di:
 
